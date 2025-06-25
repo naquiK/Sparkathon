@@ -1,9 +1,10 @@
 const express = require('express');
-const { register } = require('../controllers/user-Conntroller');
+const { register, optVerification } = require('../controllers/user-Conntroller');
 const router = express.Router();
 
 // User registration route
-router.post('/register', register);
+router.post('/auth/register', register);
+router.post('/auth/otp/:id' , optVerification )
 
 
 module.exports = router;
