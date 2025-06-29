@@ -1,10 +1,9 @@
 const User = require("../models/userModel");
-
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const mailSender = require("../utils/mailSender");
-
+const { uploadImage } = require('../config/cloudinary')
 //register user
 const register = async (req, res) => {
   try {
@@ -376,6 +375,8 @@ const editProfile = async (req, res) => {
     });
   }
   if (req.file) {
+     // Delete last profile from cloudinary
+    await cloudinary.uploader.destroy(user.publicId);
     const { url, publicId } = await uploadImage(req.file.path);
     user.profilePic = {
       url,
