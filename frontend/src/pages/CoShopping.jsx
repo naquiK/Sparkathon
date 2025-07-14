@@ -52,7 +52,7 @@ const CoShopping = () => {
 
   const fetchSessions = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}api/co-shopping/sessions`, {
+      const response = await fetch(`${BACKEND_URL}/api/co-shopping/sessions`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -71,7 +71,7 @@ const CoShopping = () => {
   const createSession = async (e) => {
     e.preventDefault()
     try {
-      const response = await fetch(`${BACKEND_URL}api/co-shopping/sessions`, {
+      const response = await fetch(`${BACKEND_URL}/api/co-shopping/sessions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -101,7 +101,7 @@ const CoShopping = () => {
 
   const joinSession = async (sessionId) => {
     try {
-      const response = await fetch(`${BACKEND_URL}api/co-shopping/sessions/${sessionId}/join`, {
+      const response = await fetch(`${BACKEND_URL}/api/co-shopping/sessions/${sessionId}/join`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -119,7 +119,7 @@ const CoShopping = () => {
   const joinByRoomId = async (e) => {
     e.preventDefault()
     try {
-      const response = await fetch(`${BACKEND_URL}api/co-shopping/join-by-room-id`, {
+      const response = await fetch(`${BACKEND_URL}/api/co-shopping/join-by-room-id`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

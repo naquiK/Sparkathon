@@ -125,7 +125,7 @@ const SurpriseBox = () => {
         preferences.brands = [...new Set([...preferences.brands, ...(userPreferences.preferences.topBrands || [])])]
       }
 
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}api/surprise-box/generate`, {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/surprise-box/generate`, {
         budget: Number.parseFloat(formData.budget),
         preferences,
         occasion: formData.occasion,

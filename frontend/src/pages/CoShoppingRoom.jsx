@@ -139,7 +139,7 @@ const CoShoppingRoom = () => {
   const fetchProducts = async () => {
     setLoadingProducts(true)
     try {
-      const response = await fetch(`${BACKEND_URL}api/products`)
+      const response = await fetch(`${BACKEND_URL}/api/products`)
       const data = await response.json()
 
       if (data.success) {
