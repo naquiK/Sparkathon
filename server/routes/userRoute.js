@@ -13,6 +13,11 @@ const {
   getAllUsers,
   deleteUser,
 } = require("../controllers/user-Controller")
+const { authMiddleware } = require("../middleware/auth-middleware")
+
+
+const upload = require("../middleware/multer-middleware")
+const { adminMiddleware } = require("../middleware/adminMiddleware")
 
 
 // Public routes
@@ -31,7 +36,7 @@ router.delete("/addresses/:addressId", authMiddleware, deleteAddress)
 router.put("/addresses/:addressId/default", authMiddleware, setDefaultAddress)
 
 // Admin routes
-router.get("/all", authMiddleware, adminMiddleware, getAllUsers)
+router.get("/all", authMiddleware, adminMiddleware , getAllUsers)
 router.delete("/:userId", authMiddleware, adminMiddleware, deleteUser) 
 
 module.exports = router

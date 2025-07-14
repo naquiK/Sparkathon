@@ -4,7 +4,7 @@
   "description": "eKart E-commerce Backend",
   "main": "server.js",
   "scripts": {
-    "build":"npm install",
+    "build":"npm install --force",
     "start": "node server.js",
     "dev": "nodemon server.js"
   },

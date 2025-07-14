@@ -37,6 +37,7 @@ const authMiddleware = async (req, res, next) => {
           email: decryptedEmail,
           phoneNo: decryptedPhone,
           role: decoded.role,
+          isAdmin: decoded.isAdmin || decoded.role === "admin",
         }
       } catch (decryptError) {
         // If decryption fails, use the original values

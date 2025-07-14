@@ -14,9 +14,9 @@ const surpriseBoxRoutes = require("./routes/surpriseBoxRoutes")
 const coShoppingRoutes = require("./routes/coShoppingRoutes")
 const User = require("./models/userModel")
 
-const app = express()
+const app = express() 
 const server = http.createServer(app)
-
+  
 // CORS configuration
 const corsOptions = {
   origin: ["http://localhost:3000", "http://localhost:5173" , `${process.env.FRONTEND_URL}`],
