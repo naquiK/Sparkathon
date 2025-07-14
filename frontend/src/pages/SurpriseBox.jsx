@@ -8,7 +8,7 @@ import axios from "axios"
 import toast from "react-hot-toast"
 
 const SurpriseBox = () => {
-  const { user } = useAuth()
+  const { user, token } = useAuth() // Get token from AuthContext
   const { addToCart } = useCart()
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -70,7 +70,11 @@ const SurpriseBox = () => {
 
   const fetchUserPreferences = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/surprise-box/preferences`)
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/surprise-box/preferences`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Add authorization header
+        },
+      })
       if (response.data.success) {
         setUserPreferences(response.data.data)
         if (response.data.data?.hasOrderHistory) {
@@ -125,12 +129,20 @@ const SurpriseBox = () => {
         preferences.brands = [...new Set([...preferences.brands, ...(userPreferences.preferences.topBrands || [])])]
       }
 
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/surprise-box/generate`, {
-        budget: Number.parseFloat(formData.budget),
-        preferences,
-        occasion: formData.occasion,
-        giftFor: formData.giftFor,
-      })
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/surprise-box/generate`, 
+        {
+          budget: Number.parseFloat(formData.budget),
+          preferences,
+          occasion: formData.occasion,
+          giftFor: formData.giftFor,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Add authorization header
+          },
+        },
+      )
 
       if (response.data.success) {
         setSurpriseBox(response.data.data.surpriseBox)
