@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true) // New loading state
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL 
 
   // Function to decode token and set user/admin state
   const decodeAndSetUser = useCallback((authToken) => {
@@ -60,7 +61,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/users/profile", {
+      const response = await fetch(`${BACKEND_URL}api/users/login`, {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
@@ -100,7 +101,7 @@ export const AuthProvider = ({ children }) => {
     async (email, password) => {
       setLoading(true)
       try {
-        const response = await fetch("http://localhost:5000/api/users/login", {
+        const response = await fetch(`${BACKEND_URL}api/users/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
