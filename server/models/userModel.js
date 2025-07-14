@@ -1,55 +1,62 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose")
+const validator = require("validator")
 
-const userSchema = new mongoose.Schema({
-    name:{
-        type:String,
-        required:true,
-        unique:false,
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Please enter your name"],
+      maxLength: [30, "Your name cannot exceed 30 characters"],
     },
     email: {
-        type: String,
-        required: true,
-        unique: false,
-        trim: true,
-        lowercase: true
+      type: String,
+      required: [true, "Please enter your email"],
+      unique: true,
+      validate: [validator.isEmail, "Please enter a valid email address"],
     },
     password: {
+      type: String,
+      required: [true, "Please enter your password"],
+      minlength: [6, "Your password must be longer than 6 characters"],
+      select: false, // This ensures password is not returned in queries by default
+    },
+    phone: {
+      type: String,
+      default: "",
+    },
+    profilePic: {
+      url: {
         type: String,
-        required: true,
-        minlength: 6
+        default: "",
+      },
+      publicId: {
+        type: String,
+        default: "",
+      },
     },
-    phoneNo:{
-        type:Number,
-        required: true,
-        unique: false,
+    addresses: [
+      {
+        street: { type: String, required: true },
+        city: { type: String, required: true },
+        state: { type: String, required: true },
+        zip: { type: String, required: true },
+        country: { type: String, required: true },
+        isDefault: { type: Boolean, default: false },
+      },
+    ],
+    isAdmin: {
+      type: Boolean,
+      default: false,
     },
-    role:{
-        type:String,
-        enum:["user","admin"],
-        default:"user"
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
-     profilePic:{
-        url:{
-            type:String,
-            default:"https://clipground.com/images/white-profile-icon-png-7.png",
-        },
-        publicId:{
-            type:String,
-        }
-    },
-    isVerified:{
-        type:Boolean,
-        default:false,
-    },
-     verificationCode: {type: Number},
-     verificationCodeExpire: Date,
-     resetPasswordToken: {type: Number},
-     resetPasswordExpire: Date,
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
-    
-})
+    verificationToken: String,
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
+  },
+  { timestamps: true },
+)
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model("User", userSchema)
