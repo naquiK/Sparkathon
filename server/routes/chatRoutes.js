@@ -1,24 +1,24 @@
 const express = require("express")
-const {
-  createChatRoom,
-  getChatRooms,
-  joinChatRoom,
-  getChatMessages,
-  sendMessage,
-  shareProduct,
-} = require("../controllers/chatController")
-const { authMiddleware } = require("../middleware/auth-middleware")
-
 const router = express.Router()
+const { authMiddleware } = require("../middleware/auth-middleware")
+const chatController = require("../controllers/chatController")
 
-// All chat routes require authentication
-router.use(authMiddleware)
+// Create a new chat room
+router.post("/rooms", authMiddleware, chatController.createChatRoom)
 
-router.post("/rooms", createChatRoom)
-router.get("/rooms", getChatRooms)
-router.post("/rooms/:roomId/join", joinChatRoom)
-router.get("/rooms/:roomId/messages", getChatMessages)
-router.post("/rooms/:roomId/messages", sendMessage)
-router.post("/rooms/:roomId/share/:productId", shareProduct)
+// Get all chat rooms
+router.get("/rooms", authMiddleware, chatController.getChatRooms)
+
+// Join a chat room
+router.post("/rooms/:roomId/join", authMiddleware, chatController.joinChatRoom)
+
+// Get messages for a specific chat room
+router.get("/rooms/:roomId/messages", authMiddleware, chatController.getChatMessages)
+
+// Send a message in a chat room
+router.post("/rooms/:roomId/messages", authMiddleware, chatController.sendMessage)
+
+// Share a product in a chat room
+router.post("/rooms/:roomId/share-product/:productId", authMiddleware, chatController.shareProduct)
 
 module.exports = router

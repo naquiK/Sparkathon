@@ -13,10 +13,7 @@ const {
   getAllUsers,
   deleteUser,
 } = require("../controllers/user-Controller")
-const { authMiddleware } = require("../middleware/auth-middleware")
 
-const upload = require("../middleware/multer-middleware")
-const { adminMiddleware } = require("../middleware/adminMiddleware")
 
 // Public routes
 router.post("/register", registerUser)
