@@ -17,6 +17,9 @@ const CoShoppingRoom = () => {
   const { addToCart } = useCart()
   const themeClasses = getWeatherTheme()
 
+  //backend URL
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"
+
   // Socket and room state
   const [socket, setSocket] = useState(null)
   const [isConnected, setIsConnected] = useState(false)
@@ -50,7 +53,7 @@ const CoShoppingRoom = () => {
       return
     }
 
-    const newSocket = io("http://localhost:5000", {
+    const newSocket = io(import.meta.env.VITE_BACKEND_URL, {
       auth: {
         token: localStorage.getItem("token"),
         userId: user._id,
@@ -136,7 +139,7 @@ const CoShoppingRoom = () => {
   const fetchProducts = async () => {
     setLoadingProducts(true)
     try {
-      const response = await fetch("http://localhost:5000/api/products")
+      const response = await fetch(`${BACKEND_URL}api/products`)
       const data = await response.json()
 
       if (data.success) {

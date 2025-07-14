@@ -70,7 +70,7 @@ const SurpriseBox = () => {
 
   const fetchUserPreferences = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/surprise-box/preferences")
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/surprise-box/preferences`)
       if (response.data.success) {
         setUserPreferences(response.data.data)
         if (response.data.data?.hasOrderHistory) {
@@ -125,7 +125,7 @@ const SurpriseBox = () => {
         preferences.brands = [...new Set([...preferences.brands, ...(userPreferences.preferences.topBrands || [])])]
       }
 
-      const response = await axios.post("http://localhost:5000/api/surprise-box/generate", {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}api/surprise-box/generate`, {
         budget: Number.parseFloat(formData.budget),
         preferences,
         occasion: formData.occasion,
