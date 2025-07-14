@@ -7,7 +7,22 @@ import { useWeather } from "../contexts/WeatherContext"
 import { useCart } from "../contexts/CartContext"
 import io from "socket.io-client"
 import toast from "react-hot-toast"
-import { Users, MessageCircle, Send, ShoppingCart, Search, Grid, List, Star, Share2, Copy, X, Eye, ArrowLeft, LogOut } from 'lucide-react'
+import {
+  Users,
+  MessageCircle,
+  Send,
+  ShoppingCart,
+  Search,
+  Grid,
+  List,
+  Star,
+  Share2,
+  Copy,
+  X,
+  Eye,
+  ArrowLeft,
+  LogOut,
+} from "lucide-react"
 
 const CoShoppingRoom = () => {
   const { roomId } = useParams()
@@ -16,9 +31,6 @@ const CoShoppingRoom = () => {
   const { getWeatherTheme } = useWeather()
   const { addToCart } = useCart()
   const themeClasses = getWeatherTheme()
-
-  //backend URL
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"
 
   // Socket and room state
   const [socket, setSocket] = useState(null)
@@ -36,7 +48,11 @@ const CoShoppingRoom = () => {
   const [selectedCategory, setSelectedCategory] = useState("")
   const [priceRange, setPriceRange] = useState({ min: "", max: "" })
   const [sortBy, setSortBy] = useState("createdAt")
-  const [viewMode, setViewMode] = useState("grid")
+  const [viewMode, setViewMode] = useState("grid") // "grid" or "list"
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const productsPerPage = viewMode === "grid" ? 9 : 5 // Adjust based on view mode
 
   // UI state
   const [showShareModal, setShowShareModal] = useState(false)
@@ -53,7 +69,7 @@ const CoShoppingRoom = () => {
       return
     }
 
-    const newSocket = io(import.meta.env.VITE_BACKEND_URL, {
+    const newSocket = io("http://localhost:5000", {
       auth: {
         token: localStorage.getItem("token"),
         userId: user._id,
@@ -64,7 +80,7 @@ const CoShoppingRoom = () => {
     newSocket.on("connect", () => {
       console.log("Connected to server")
       setIsConnected(true)
-      newSocket.emit("join-co-shopping-room", { roomId, userId: user._id, userName: user.name })
+      newSocket.emit("join-room", roomId)
     })
 
     newSocket.on("disconnect", () => {
@@ -90,11 +106,12 @@ const CoShoppingRoom = () => {
     })
 
     newSocket.on("message", (message) => {
-      console.log("Received new message:", message); // Debugging log
+      console.log("Received new message:", message)
       setMessages((prev) => [...prev, message])
     })
 
     newSocket.on("product-shared", (data) => {
+      console.log("Received product-shared event. Product data:", data.product) // Debugging log for shared product
       toast.success(`${data.sharedBy.name} shared a product: ${data.product.name}`)
       setMessages((prev) => [
         ...prev,
@@ -103,7 +120,7 @@ const CoShoppingRoom = () => {
           user: { name: data.sharedBy.name },
           content: `Shared product: ${data.product.name}`,
           type: "product-share",
-          product: data.product,
+          product: data.product, // Ensure the full product object is stored
           timestamp: new Date(),
         },
       ])
@@ -126,9 +143,10 @@ const CoShoppingRoom = () => {
     fetchProducts()
   }, [])
 
-  // Filter products
+  // Filter products and reset page when filters change
   useEffect(() => {
     filterProducts()
+    setCurrentPage(1) // Reset to first page on filter change
   }, [products, searchTerm, selectedCategory, priceRange, sortBy])
 
   // Auto-scroll chat
@@ -139,14 +157,13 @@ const CoShoppingRoom = () => {
   const fetchProducts = async () => {
     setLoadingProducts(true)
     try {
-      const response = await fetch(`${BACKEND_URL}/api/products`)
+      const response = await fetch("http://localhost:5000/api/products")
       const data = await response.json()
 
       if (data.success) {
-        // Handle both response formats
         const productList = data.products || data.data?.products || []
         setProducts(productList)
-        setFilteredProducts(productList)
+        setFilteredProducts(productList) // Initialize filtered products with all products
       } else {
         toast.error(data.message || "Failed to fetch products")
       }
@@ -159,11 +176,11 @@ const CoShoppingRoom = () => {
   }
 
   const filterProducts = () => {
-    let filtered = [...products]
+    let tempFiltered = [...products]
 
     // Search filter
     if (searchTerm) {
-      filtered = filtered.filter(
+      tempFiltered = tempFiltered.filter(
         (product) =>
           product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -173,19 +190,19 @@ const CoShoppingRoom = () => {
 
     // Category filter
     if (selectedCategory) {
-      filtered = filtered.filter((product) => product.category === selectedCategory)
+      tempFiltered = tempFiltered.filter((product) => product.category === selectedCategory)
     }
 
     // Price range filter
     if (priceRange.min) {
-      filtered = filtered.filter((product) => product.price >= Number(priceRange.min))
+      tempFiltered = tempFiltered.filter((product) => product.price >= Number(priceRange.min))
     }
     if (priceRange.max) {
-      filtered = filtered.filter((product) => product.price <= Number(priceRange.max))
+      tempFiltered = tempFiltered.filter((product) => product.price <= Number(priceRange.max))
     }
 
     // Sort products
-    filtered.sort((a, b) => {
+    tempFiltered.sort((a, b) => {
       switch (sortBy) {
         case "price-low":
           return a.price - b.price
@@ -200,8 +217,16 @@ const CoShoppingRoom = () => {
       }
     })
 
-    setFilteredProducts(filtered)
+    setFilteredProducts(tempFiltered)
   }
+
+  // Get current products for pagination
+  const indexOfLastProduct = currentPage * productsPerPage
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct)
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage)
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
   const sendMessage = () => {
     if (!newMessage.trim() || !socket) return
@@ -223,7 +248,7 @@ const CoShoppingRoom = () => {
     socket.emit("share-product", {
       roomId,
       product,
-      sharedBy: user.name,
+      sharedBy: user, // Send full user object for sharedBy
       userId: user._id,
     })
 
@@ -322,7 +347,7 @@ const CoShoppingRoom = () => {
               <button
                 onClick={() => {
                   if (socket) {
-                    socket.emit("leave-room", { roomId, userId: user._id })
+                    socket.emit("leave-room", roomId) // Pass roomId
                   }
                   navigate("/co-shopping")
                 }}
@@ -334,7 +359,7 @@ const CoShoppingRoom = () => {
               <button
                 onClick={() => {
                   if (socket) {
-                    socket.emit("terminate-room", { roomId, userId: user._id })
+                    socket.emit("terminate-room", roomId) // Pass roomId
                   }
                   navigate("/co-shopping")
                 }}
@@ -408,7 +433,7 @@ const CoShoppingRoom = () => {
             {/* Products Grid */}
             {loadingProducts ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, index) => (
+                {[...Array(productsPerPage)].map((_, index) => (
                   <div key={index} className="animate-pulse">
                     <div className={`${themeClasses.card} h-64 rounded-lg mb-3`}></div>
                     <div className={`h-4 ${themeClasses.card} rounded mb-2`}></div>
@@ -424,7 +449,7 @@ const CoShoppingRoom = () => {
               <div
                 className={`grid ${viewMode === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"} gap-6`}
               >
-                {filteredProducts.map((product) => (
+                {currentProducts.map((product) => (
                   <div
                     key={product._id}
                     className={`${themeClasses.card} rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300`}
@@ -509,6 +534,29 @@ const CoShoppingRoom = () => {
                 ))}
               </div>
             )}
+
+            {/* Pagination Controls */}
+            {filteredProducts.length > productsPerPage && (
+              <div className="flex justify-center mt-6 space-x-2">
+                <button
+                  onClick={() => paginate(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`${themeClasses.button} text-white px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  Previous
+                </button>
+                <span className={`px-4 py-2 rounded-lg ${themeClasses.secondary}`}>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => paginate(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`${themeClasses.button} text-white px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Chat Section */}
@@ -553,9 +601,32 @@ const CoShoppingRoom = () => {
                       </span>
                     </div>
                     {message.type === "product-share" || message.messageType === "product" ? (
-                      <div className={`p-2 rounded-lg ${themeClasses.secondary} border-l-4 border-blue-500`}>
-                        <p className="text-sm font-medium">Shared a product:</p>
-                        <p className="text-sm text-blue-600">{message.product?.name || message.productId?.name}</p>
+                      // Enhanced display for shared products
+                      <div
+                        className={`p-2 rounded-lg ${themeClasses.secondary} border-l-4 border-blue-500 flex items-start space-x-3`}
+                      >
+                        <img
+                          src={getImageUrl(message.product || message.productId) || "/placeholder.svg"}
+                          alt={message.product?.name || message.productId?.name || "Shared Product"}
+                          className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                          onError={(e) => {
+                            e.target.src = "/placeholder.svg?height=100&width=100"
+                          }}
+                        />
+                        <div>
+                          <p className="text-sm font-medium">Shared a product:</p>
+                          <p className="text-sm text-blue-600 font-semibold">
+                            {message.product?.name || message.productId?.name || "Product Name Unavailable"}
+                          </p>
+                          <p className="text-xs text-gray-500 line-clamp-2">
+                            {message.product?.description || message.productId?.description || "No description."}
+                          </p>
+                          {(message.product?.price || message.productId?.price) && (
+                            <p className="text-sm font-bold mt-1">
+                              ₹{(message.product?.price || message.productId?.price).toLocaleString()}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     ) : (
                       <p className="text-sm">{message.content}</p>
