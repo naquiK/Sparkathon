@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      const response = await fetch(`${BACKEND_URL}api/users/login`, {
+      const response = await fetch(`${BACKEND_URL}/api/users/login`, {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
