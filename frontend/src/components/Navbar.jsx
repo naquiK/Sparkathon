@@ -103,7 +103,7 @@ const Navbar = () => {
               <span
                 className={`text-xl font-black ${themeClasses.text} group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300`}
               >
-                eKart
+                Brother idher
               </span>
               <span
                 className={`text-xs ${themeClasses.textSecondary} -mt-1 group-hover:text-blue-500 transition-colors`}
