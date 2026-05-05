@@ -10,6 +10,8 @@ import Footer from "./components/Footer"
 import AIAssistant from "./components/AIAssistant"
 import ProtectedRoute from "./components/ProtectedRoute"
 import AdminRoute from "./components/AdminRoute"
+    
+import ScrollToTop from "./components/ScrollToTop";
 import Home from "./pages/Home"
 import Products from "./pages/Products"
 import ProductDetail from "./pages/ProductDetail"
@@ -36,112 +38,114 @@ function App() {
     window.scrollTo(0, 0)
   }, [location.pathname])
 
-  return (
+  return(
     <WeatherProvider>
-      <AuthProvider>
-        <CartProvider>
-          <Router>
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-              <Navbar />
-              <main className="flex-1">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/products" element={<Products />} />
-                  <Route path="/product/:id" element={<ProductDetail />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route
-                    path="/checkout"
-                    element={
-                      <ProtectedRoute>
-                        <Checkout />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/profile"
-                    element={
-                      <ProtectedRoute>
-                        <Profile />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/surprise-box"
-                    element={
-                      <ProtectedRoute>
-                        <SurpriseBox />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/co-shopping"
-                    element={
-                      <ProtectedRoute>
-                        <CoShopping />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/co-shopping/:roomId"
-                    element={
-                      <ProtectedRoute>
-                        <CoShoppingRoom />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/chat-rooms"
-                    element={
-                      <ProtectedRoute>
-                        <ChatRooms />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/chat/:roomId"
-                    element={
-                      <ProtectedRoute>
-                        <ChatRoom />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin"
-                    element={
-                      <AdminRoute>
-                        <AdminDashboard />
-                      </AdminRoute>
-                    }
-                  />
-                </Routes>
-              </main>
-              <Footer />
-              <AIAssistant />
-              <Toaster
-                position="top-right"
-                toastOptions={{
-                  duration: 4000,
-                  style: {
-                    background: "#363636",
-                    color: "#fff",
+    <AuthProvider>
+      <CartProvider>
+        <Router>
+          <ScrollToTop /> {/* ✅ Added here */}
+
+          <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+            <Navbar />
+            <main className="flex-1">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route
+                  path="/checkout"
+                  element={
+                    <ProtectedRoute>
+                      <Checkout />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/surprise-box"
+                  element={
+                    <ProtectedRoute>
+                      <SurpriseBox />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/co-shopping"
+                  element={
+                    <ProtectedRoute>
+                      <CoShopping />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/co-shopping/:roomId"
+                  element={
+                    <ProtectedRoute>
+                      <CoShoppingRoom />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/chat-rooms"
+                  element={
+                    <ProtectedRoute>
+                      <ChatRooms />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/chat/:roomId"
+                  element={
+                    <ProtectedRoute>
+                      <ChatRoom />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin"
+                  element={
+                    <AdminRoute>
+                      <AdminDashboard />
+                    </AdminRoute>
+                  }
+                />
+              </Routes>
+            </main>
+            <Footer />
+            <AIAssistant />
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: "#363636",
+                  color: "#fff",
+                },
+                success: {
+                  duration: 3000,
+                  theme: {
+                    primary: "green",
+                    secondary: "black",
                   },
-                  success: {
-                    duration: 3000,
-                    theme: {
-                      primary: "green",
-                      secondary: "black",
-                    },
-                  },
-                }}
-              />
-            </div>
-          </Router>
-        </CartProvider>
-      </AuthProvider>
-    </WeatherProvider>
-  )
+                },
+              }}
+            />
+          </div>
+        </Router>
+      </CartProvider>
+    </AuthProvider>
+  </WeatherProvider>
+  );
 }
 
 export default App
